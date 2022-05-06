@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: envoy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: envoy
+  template:
+    metadata:
+      labels:
+        app: envoy
+    spec:
+      containers:
+      - name: envoy
+        image: envoyproxy/envoy:v1.18.3
+        ports:
+        - name: https
+          containerPort: 8443
+        resources:
+          requests:
+            cpu: 10m
+            ephemeral-storage: 256Mi
+            memory: 256Mi
+        volumeMounts:
+        - name: config
+          mountPath: /etc/envoy
+        - name: certs
+          mountPath: /etc/ssl/envoy
+        readinessProbe:
+          httpGet:
+            port: https
+            httpHeaders:
+            - name: x-envoy-livenessprobe
+              value: healthz
+            path: /healthz
+            scheme: HTTPS
+      volumes:
+      - name: config
+        configMap:
+          name: envoy-conf
+      - name: certs
+        secret:
+          secretName: envoy-certs

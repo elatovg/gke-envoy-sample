@@ -1,6 +1,8 @@
 # gke-envoy-sample
 
-## Generate the Certificates
+This repo has two examples: **ssl-passthrough** and **ssl-offload**. 
+
+## Generate the Certificates (if ssl offload is desired)
 
 ```bash
 openssl req -x509 -newkey rsa:4096 -nodes -sha256 -days 365 \
@@ -37,9 +39,23 @@ kubectl apply -f secrets.yaml
 Lastly apply the rest of them:
 
 ```bash
+> cd ssl-offload
 > k apply -f .
 configmap/envoy-conf created
 deployment.apps/envoy created
 secret/envoy-certs configured
+service/envoy created
+```
+
+## SSL Passthrough Use Case
+If you want envoy to just passthrough the ssl connection you can use the below example:
+
+```bash
+
+> cd ssl-passthrough
+> k apply -f .
+configmap/envoy-conf created
+deployment.apps/envoy created
+> k apply -f ../svc.yaml
 service/envoy created
 ```
